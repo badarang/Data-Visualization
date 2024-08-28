@@ -12,42 +12,64 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #f4f4f4;
+            background-color: #f8f8f8;
             color: #333;
             margin: 0;
             padding: 0;
         }
         .container {
-            width: 90%;
+            width: 95%;
+            max-width: 1200px;
             margin: 20px auto;
             text-align: center;
         }
         h1 {
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: 600;
             margin-bottom: 20px;
+            color: #2c3e50;
         }
         input[type="file"] {
-            display: none; /* Hide default file input */
+            display: none;
         }
         .custom-file-input {
             display: inline-block;
-            padding: 10px 20px;
+            padding: 12px 24px;
             font-size: 1rem;
             color: #fff;
-            background-color: #007bff;
+            background-color: #3498db;
             border: none;
-            border-radius: 5px;
+            border-radius: 30px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
         .custom-file-input:hover {
-            background-color: #0056b3;
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
-        .file-status {
-            margin: 10px 0;
+        .button-container {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .mode-button {
+            padding: 12px 24px;
             font-size: 1rem;
-            color: #555;
+            color: #fff;
+            background-color: #2ecc71;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .mode-button:hover, .mode-button.active {
+            background-color: #27ae60;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
         .charts-container {
             display: flex;
@@ -55,14 +77,32 @@
             justify-content: center;
         }
         .chart-wrapper, .wordcloud-wrapper {
-            width: 100%;
-            max-width: 600px;
+            width: calc(25% - 40px);
             margin: 20px;
-            padding: 10px;
+            padding: 20px;
             background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            position: relative;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        @media (max-width: 1200px) {
+            .chart-wrapper, .wordcloud-wrapper {
+                width: calc(33.33% - 40px);
+            }
+        }
+        @media (max-width: 900px) {
+            .chart-wrapper, .wordcloud-wrapper {
+                width: calc(50% - 40px);
+            }
+        }
+        @media (max-width: 600px) {
+            .chart-wrapper, .wordcloud-wrapper {
+                width: calc(100% - 40px);
+            }
+        }
+        .chart-wrapper:hover, .wordcloud-wrapper:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
         }
         canvas {
             max-width: 100%;
@@ -72,31 +112,91 @@
             width: 100%;
             height: 300px;
         }
-        footer {
+        .post-viewer-container {
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
             margin-top: 20px;
-            padding: 10px;
+            width: 60%;
+            margin-left: auto;
+            margin-right: auto;
+            transition: background-color 0.3s ease;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .post-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .nav-button {
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .nav-button:hover:not(:disabled) {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        .nav-button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .post-counter {
+            font-size: 1rem;
+            color: #7f8c8d;
+        }
+        .post-content {
+            text-align: left;
+            margin-top: 20px;
+        }
+        .post-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .post-table th, .post-table td {
+            padding: 12px;
+            border: 1px solid #ecf0f1;
+        }
+        .post-table th {
+            background-color: #3498db;
+            color: #fff;
+            font-weight: 600;
+            width: 20%; /* 기존 30%에서 20%로 축소 */
+            vertical-align: top;
+            white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+            overflow: hidden; /* 넘치는 텍스트 숨김 */
+            text-overflow: ellipsis; /* 넘치는 텍스트에 '...' 표시 */
+            max-width: 150px; /* 최대 너비 설정 */
+        }
+
+        .post-table td {
+            font-size: 0.9rem; /* 폰트 크기 줄임 */
+            padding: 6px 12px; /* 패딩 축소 */
+            word-break: break-word; /* 긴 단어가 넘어가지 않도록 수정 */
+        }
+        .post-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .post-table tr:nth-child(odd) {
+            background-color: #e9ecef;
+        }
+        footer {
+            margin-top: 40px;
+            padding: 20px;
             text-align: center;
             font-size: 0.9rem;
-            color: #666;
-        }
-        .chart-table {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #fff;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            padding: 10px;
-            font-size: 0.9rem;
-            z-index: 10; /* Ensures the table appears above the chart */
-            max-width: 200px; /* Ensures the table does not exceed the maximum width */
-        }
-        .chart-table td {
-            padding: 5px;
-            text-align: left;
-        }
-        .chart-title {
-            margin-bottom: 30px; /* Space for table */
+            color: #7f8c8d;
+            border-radius: 10px;
         }
     </style>
 </head>
@@ -107,7 +207,19 @@
             <label for="csvFile" class="custom-file-input">CSV 파일을 선택해 주세요!</label>
             <input type="file" id="csvFile" accept=".csv">
         </div>
+        <div class="button-container">
+            <button id="show-visualization" class="mode-button">데이터 시각화</button>
+            <button id="show-posts" class="mode-button">게시글 뷰어</button>
+        </div>
         <div id="result" class="charts-container"></div>
+        <div id="post-view" class="post-viewer-container" style="display: none;">
+            <div class="post-navigation">
+                <button id="prev-button" class="nav-button">이전</button>
+                <span class="post-counter"></span>
+                <button id="next-button" class="nav-button">다음</button>
+            </div>
+            <div class="post-content"></div>
+        </div>
     </div>
 
     <footer>
@@ -116,6 +228,8 @@
 
     <script>
         let csvData;
+        let currentPage = 1;
+        const rowsPerPage = 1;
 
         document.getElementById('csvFile').addEventListener('change', function (e) {
             const file = e.target.files[0];
@@ -125,8 +239,27 @@
                 complete: function (results) {
                     csvData = results.data.filter(row => Object.values(row).some(value => value));
                     displayAllData(Object.keys(csvData[0]));
+                    displayPosts();
                 }
             });
+        });
+
+        document.getElementById('show-visualization').addEventListener('click', function () {
+            document.getElementById('result').style.display = 'flex';
+            document.getElementById('post-view').style.display = 'none';
+        });
+
+        document.getElementById('show-posts').addEventListener('click', function () {
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('post-view').style.display = 'block';
+        });
+
+        document.getElementById('prev-button').addEventListener('click', function() {
+            changePage(-1);
+        });
+
+        document.getElementById('next-button').addEventListener('click', function() {
+            changePage(1);
         });
 
         function displayAllData(attributes) {
@@ -166,7 +299,6 @@
                 }
             });
         }
-
         function displayPieChart(attribute, labels, data) {
             const chartWrapper = document.createElement('div');
             chartWrapper.className = 'chart-wrapper';
@@ -245,7 +377,6 @@
             const mean = numericValues.reduce((a, b) => a + b, 0) / numericValues.length;
             const stdDev = Math.sqrt(numericValues.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / numericValues.length);
 
-            // Create integer bins
             const minVal = Math.floor(Math.min(...numericValues));
             const maxVal = Math.ceil(Math.max(...numericValues));
             const bins = Array.from({ length: maxVal - minVal + 1 }, (_, i) => ({
@@ -351,7 +482,6 @@
                 }
             });
 
-            // Add the table for mean and standard deviation
             const table = document.createElement('div');
             table.className = 'chart-table';
             table.innerHTML = `
@@ -367,6 +497,68 @@
                 </table>
             `;
             chartWrapper.appendChild(table);
+        }
+
+        function displayPosts() {
+            const postViewDiv = document.getElementById('post-view');
+            const postContentDiv = postViewDiv.querySelector('.post-content');
+            postContentDiv.innerHTML = '';
+
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = Math.min(startIndex + rowsPerPage, csvData.length);
+
+            for (let i = startIndex; i < endIndex; i++) {
+                const row = csvData[i];
+                const postTable = document.createElement('table');
+                postTable.className = 'post-table';
+
+                for (let key in row) {
+                    if (row[key].trim() === "") continue; // 빈 값 필터링 추가
+
+                    const rowElement = document.createElement('tr');
+                    const attributeCell = document.createElement('th');
+                    const valueCell = document.createElement('td');
+
+                    attributeCell.textContent = key;
+                    valueCell.textContent = row[key];
+
+                    rowElement.appendChild(attributeCell);
+                    rowElement.appendChild(valueCell);
+                    postTable.appendChild(rowElement);
+                }
+
+                if (postTable.rows.length > 0) {
+                    postContentDiv.appendChild(postTable);
+                }
+            }
+
+            updateNavigation();
+        }
+
+
+        function updateNavigation() {
+            const prevButton = document.getElementById('prev-button');
+            const nextButton = document.getElementById('next-button');
+            const postCounter = document.querySelector('.post-counter');
+
+            prevButton.disabled = currentPage === 1;
+            nextButton.disabled = currentPage * rowsPerPage >= csvData.length;
+
+            postCounter.textContent = `${currentPage} / ${Math.ceil(csvData.length / rowsPerPage)}`;
+        }
+
+        function getRandomPastelColor() {
+            const hue = Math.floor(Math.random() * 360);
+            return `hsla(${hue}, 100%, 85%, 0.3)`;  
+        }
+
+
+        function changePage(direction) {
+            currentPage += direction;
+            displayPosts();
+            const postViewDiv = document.getElementById('post-view');
+            postViewDiv.style.transition = 'background-color 0.5s ease';
+            postViewDiv.style.backgroundColor = getRandomPastelColor();
         }
     </script>
 </body>
